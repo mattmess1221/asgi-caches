@@ -1,4 +1,3 @@
-import re
 import typing
 
 from aiocache import BaseCache as Cache
@@ -8,6 +7,7 @@ from starlette.responses import Response
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .exceptions import DuplicateCaching, RequestNotCachable, ResponseNotCachable
+from .rules import Rule
 from .utils.cache import get_from_cache, patch_cache_control, store_in_cache
 from .utils.logging import HIT_EXTRA, MISS_EXTRA, get_logger
 from .utils.misc import kvformat
@@ -24,18 +24,60 @@ async def unattached_send(message: Message) -> None:
 
 
 class CacheMiddleware:
+    """Middleware that caches responses.
+
+    This middleware caches responses based on the request path. It can be
+    configured with rules that determine which requests and responses should be
+    cached. Configure the rules by passing a sequence of `Rule` instances to
+    the `rules` argument.
+
+    Rules:
+
+        The `rules` argument is a sequence of rules that determine which requests and
+        responses should be cached. By default, all requests and responses are cached.
+
+        Responses will match the first rule. If no rule matches, the response will not
+        be cached. Rules that specify a path rules should be placed above rules that
+        use other checks, like status codes.
+
+        To manually disable caching for responses matching a rule, set the `ttl` to 0.
+
+    Status Codes:
+
+        Status codes can be provided as a single integer or as a sequence of integers,
+        like a tuple or frozenset. They can be used without a path rule to match all
+        responses with the specified status code.
+
+        Here is an example rule configuration that uses the default values from
+        Cloudflare Edge.
+
+        ```python
+        rules = [
+            Rule(status=(200, 206, 301), ttl=60*120),   # 120m
+            Rule(status=(302, 303), ttl=60*20),         # 20m
+            Rule(status=(404, 410), ttl=60*3),          # 3m
+        ]
+        ```
+
+    Args:
+        app: The ASGI application to wrap.
+        cache: The cache instance to use.
+        rules: A sequence of rules for caching behavior.
+    """
+
     def __init__(
         self,
         app: ASGIApp,
         *,
         cache: Cache,
-        match_paths: typing.Sequence[typing.Union[str, re.Pattern]] = ("*",),
-        deny_paths: typing.Sequence[typing.Union[str, re.Pattern]] = (),
+        rules: typing.Optional[typing.Sequence[Rule]] = None,
     ) -> None:
+        if rules is None:
+            rules = [Rule()]
+
         self.app = app
         self.cache = cache
-        self.match_paths = match_paths
-        self.deny_paths = deny_paths
+        self.rules = rules
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -57,8 +99,7 @@ class CacheMiddleware:
         responder = CacheResponder(
             self.app,
             cache=self.cache,
-            match_paths=self.match_paths,
-            deny_paths=self.deny_paths,
+            rules=self.rules,
         )
         await responder(scope, receive, send)
 
@@ -69,55 +110,24 @@ class CacheResponder:
         app: ASGIApp,
         *,
         cache: Cache,
-        match_paths: typing.Sequence[typing.Union[str, re.Pattern]],
-        deny_paths: typing.Sequence[typing.Union[str, re.Pattern]],
+        rules: typing.Sequence[Rule],
     ) -> None:
         self.app = app
         self.cache = cache
-        self.match_paths = match_paths
-        self.deny_paths = deny_paths
+        self.rules = rules
 
         self.send: Send = unattached_send
         self.initial_message: Message = {}
         self.is_response_cachable = True
         self.request: typing.Optional[Request] = None
 
-    def is_path_in_list(
-        self, request: Request, pathlist: typing.Sequence[typing.Union[str, re.Pattern]]
-    ) -> bool:
-        path = request.url.path
-        for item in pathlist:
-            if isinstance(item, str):
-                if item == "*" or item == path:
-                    return True
-            else:
-                if item.match(path):
-                    return True
-        return False
-
-    def is_path_in_denylist(self, request: Request) -> bool:
-        return self.is_path_in_list(request, self.deny_paths)
-
-    def is_path_in_allowlist(self, request: Request) -> bool:
-        return self.is_path_in_list(request, self.match_paths)
-
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         assert scope["type"] == "http"
 
         request = Request(scope)
 
-        if self.is_path_in_denylist(request):
-            logger.trace("request_not_cachable reason=denylist")
-            await self.app(scope, receive, send)
-            return
-
-        if not self.is_path_in_allowlist(request):
-            logger.trace("request_not_cachable reason=allowlist")
-            await self.app(scope, receive, send)
-            return
-
         try:
-            response = await get_from_cache(request, cache=self.cache)
+            response = await get_from_cache(request, cache=self.cache, rules=self.rules)
         except RequestNotCachable:
             await self.app(scope, receive, send)
         else:
@@ -157,7 +167,9 @@ class CacheResponder:
         response.raw_headers = list(self.initial_message["headers"])
 
         try:
-            await store_in_cache(response, request=self.request, cache=self.cache)
+            await store_in_cache(
+                response, request=self.request, cache=self.cache, rules=self.rules
+            )
         except ResponseNotCachable:
             self.is_response_cachable = False
         else:

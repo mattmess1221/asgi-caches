@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Add `match_paths` and `deny_paths` options for CacheMiddleware to allow for more fine-grained control over which paths are cached.
+- Add `rules` option for CacheMiddleware to allow for more fine-grained control over which paths are cached.
 
 ### Internal
 

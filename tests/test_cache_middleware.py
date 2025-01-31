@@ -16,6 +16,7 @@ from starlette.types import Receive, Scope, Send
 
 from asgi_caches.exceptions import DuplicateCaching
 from asgi_caches.middleware import CacheMiddleware
+from asgi_caches.rules import Rule
 from tests.utils import CacheSpy, ComparableHTTPXResponse, mock_receive, mock_send
 
 
@@ -100,7 +101,7 @@ async def test_non_cachable_request() -> None:
 async def test_cache_match_paths(path: str, match_path: re.Pattern) -> None:
     cache = Cache()
     spy = CacheSpy(PlainTextResponse("Hello, world!"))
-    app = CacheMiddleware(spy, cache=cache, match_paths=[match_path])
+    app = CacheMiddleware(spy, cache=cache, rules=[Rule(match_path)])
     client = httpx.AsyncClient(
         transport=httpx.ASGITransport(app), base_url="http://testserver"
     )
@@ -128,7 +129,7 @@ async def test_cache_match_paths(path: str, match_path: re.Pattern) -> None:
 async def test_cache_deny_paths() -> None:
     cache = Cache()
     spy = CacheSpy(PlainTextResponse("Hello, world!"))
-    app = CacheMiddleware(spy, cache=cache, deny_paths=["/no_cache"])
+    app = CacheMiddleware(spy, cache=cache, rules=[Rule("/no_cache", ttl=0), Rule()])
     client = httpx.AsyncClient(
         transport=httpx.ASGITransport(app), base_url="http://testserver"
     )
@@ -177,8 +178,71 @@ async def test_use_cached_head_response_on_get() -> None:
         assert spy.misses == 1
 
 
+@pytest.mark.asyncio
+async def test_rule_exclusion() -> None:
+    cache = Cache()
+    spy = CacheSpy(PlainTextResponse("Hello, world!", status_code=404))
+    # 404 status is not included, so it should not be cached.
+    rules = [Rule(status=200, ttl=60)]
+    app = CacheMiddleware(spy, cache=cache, rules=rules)
+    client = httpx.AsyncClient(
+        transport=httpx.ASGITransport(app), base_url="http://testserver"
+    )
+
+    async with cache, client:
+        assert spy.misses == 0
+
+        r = await client.get("/")
+        assert r.status_code == 404
+        assert r.text == "Hello, world!"
+        assert spy.misses == 1
+
+        r1 = await client.get("/")
+        assert r1.status_code == 404
+        assert r1.text == "Hello, world!"
+        assert spy.misses == 2
+
+
+@pytest.mark.asyncio
+async def test_rule_stacking() -> None:
+    cache = Cache()
+    spy = CacheSpy(PlainTextResponse("Hello, world!", status_code=404))
+    rules = [
+        Rule("/", ttl=0),  # don't cache the root path
+        Rule(),
+    ]
+    app = CacheMiddleware(spy, cache=cache, rules=rules)
+    client = httpx.AsyncClient(
+        transport=httpx.ASGITransport(app), base_url="http://testserver"
+    )
+
+    async with cache, client:
+        assert spy.misses == 0
+
+        r = await client.get("/")
+        assert r.status_code == 404
+        assert r.text == "Hello, world!"
+        assert spy.misses == 1
+
+        r1 = await client.get("/")
+        assert r1.status_code == 404
+        assert r1.text == "Hello, world!"
+        assert spy.misses == 2
+
+        # /test should be cached
+        r = await client.get("/test")
+        assert r.status_code == 404
+        assert r.text == "Hello, world!"
+        assert spy.misses == 3
+
+        r1 = await client.get("/test")
+        assert r1.status_code == 404
+        assert r1.text == "Hello, world!"
+        assert spy.misses == 3
+
+
 @pytest.mark.parametrize(
-    "status_code", (201, 202, 204, 301, 307, 308, 400, 401, 403, 500, 502, 503)
+    "status_code", (201, 202, 307, 308, 400, 401, 403, 500, 502, 503)
 )
 @pytest.mark.asyncio
 async def test_not_200_ok(status_code: int) -> None:

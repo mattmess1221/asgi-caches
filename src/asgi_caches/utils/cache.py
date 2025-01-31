@@ -20,19 +20,27 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from ..exceptions import RequestNotCachable, ResponseNotCachable
+from ..rules import Rule, get_rule_matching_request, get_rule_matching_response
 from .logging import get_logger
 from .misc import bytes_to_json_string, http_date, json_string_to_bytes
 
 logger = get_logger(__name__)
 
 
+# https://developer.mozilla.org/en-US/docs/Glossary/Cacheable
 CACHABLE_METHODS = frozenset(("GET", "HEAD"))
-CACHABLE_STATUS_CODES = frozenset((200, 304))
+CACHABLE_STATUS_CODES = frozenset(
+    (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501)
+)
 ONE_YEAR = 60 * 60 * 24 * 365
 
 
 async def store_in_cache(
-    response: Response, *, request: Request, cache: BaseCache
+    response: Response,
+    *,
+    request: Request,
+    cache: BaseCache,
+    rules: typing.Sequence[Rule],
 ) -> None:
     """
     Given a response and a request, store the response in the cache for reuse.
@@ -59,18 +67,25 @@ async def store_in_cache(
         logger.trace("response_not_cachable reason=cookies_for_cookieless_request")
         raise ResponseNotCachable(response)
 
-    if cache.ttl == 0:
+    rule = get_rule_matching_response(rules, request=request, response=response)
+    if not rule:
+        logger.trace("response_not_cachable reason=rule")
+        raise ResponseNotCachable(response)
+
+    ttl = rule.ttl if rule.ttl is not None else cache.ttl
+
+    if ttl == 0:
         logger.trace("response_not_cachable reason=zero_ttl")
         raise ResponseNotCachable(response)
 
-    if cache.ttl is None:
+    if ttl is None:
         # From section 14.12 of RFC2616:
         # "HTTP/1.1 servers SHOULD NOT send Expires dates more than
         # one year in the future."
         max_age = ONE_YEAR
         logger.trace(f"max_out_ttl value={max_age!r}")
     else:
-        max_age = int(cache.ttl)
+        max_age = int(ttl)
 
     logger.debug(f"store_in_cache max_age={max_age!r}")
 
@@ -84,11 +99,15 @@ async def store_in_cache(
     logger.trace(
         f"store_response_in_cache key={cache_key!r} value={serialized_response!r}"
     )
-    await cache.set(key=cache_key, value=serialized_response)
+    kwargs = {}
+    if ttl is not None:
+        kwargs["ttl"] = ttl
+
+    await cache.set(key=cache_key, value=serialized_response, **kwargs)
 
 
 async def get_from_cache(
-    request: Request, *, cache: BaseCache
+    request: Request, *, cache: BaseCache, rules: typing.Sequence[Rule]
 ) -> typing.Optional[Response]:
     """
     Given a GET or HEAD request, retrieve a cached response based on the cache key
@@ -107,6 +126,11 @@ async def get_from_cache(
     )
     if request.method not in CACHABLE_METHODS:
         logger.trace("request_not_cachable reason=method")
+        raise RequestNotCachable(request)
+
+    rule = get_rule_matching_request(rules, request=request)
+    if rule is None:
+        logger.trace("request_not_cachable reason=rule")
         raise RequestNotCachable(request)
 
     logger.trace("lookup_cached_response method='GET'")
