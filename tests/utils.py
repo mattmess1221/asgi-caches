@@ -3,23 +3,13 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+import sys
 import typing
 
 import httpx
 from starlette.responses import Response
 
 import asgi_caches.utils.logging
-
-if typing.TYPE_CHECKING:
-    from starlette.types import Message
-
-
-async def mock_receive() -> Message:
-    raise NotImplementedError  # pragma: no cover
-
-
-async def mock_send(message: Message) -> None:
-    raise NotImplementedError  # pragma: no cover
 
 
 class ComparableStarletteResponse:
@@ -67,3 +57,15 @@ def override_log_level(log_level: str) -> typing.Iterator[None]:
     finally:
         # Reset the logger so we don't have verbose output in all unit tests
         logging.getLogger("asgi_caches").handlers = []
+
+
+@contextlib.contextmanager
+def cleanup_new_imports(prefix: str = "tests.") -> typing.Iterator[None]:
+    existing_imports = set(sys.modules)
+    try:
+        yield
+    finally:
+        new_imports = set(sys.modules) - existing_imports
+        for module in new_imports:
+            if module.startswith(prefix):
+                del sys.modules[module]

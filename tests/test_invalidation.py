@@ -1,10 +1,11 @@
 import importlib
-import sys
 import typing
 
 import pytest
 from starlette.testclient import TestClient
 from starlette.types import ASGIApp
+
+from .utils import cleanup_new_imports
 
 EXAMPLES = [
     pytest.param("tests.examples.invalidation.fastapi", id="fastapi"),
@@ -13,15 +14,10 @@ EXAMPLES = [
 
 
 @pytest.fixture(name="app", params=EXAMPLES)
-def app_factory(
-    request: pytest.FixtureRequest,
-) -> typing.Generator[ASGIApp, None, None]:
-    modules = sys.modules.copy()
-    try:
+def app_factory(request: pytest.FixtureRequest) -> typing.Iterator[ASGIApp]:
+    with cleanup_new_imports():
         module: typing.Any = importlib.import_module(request.param)
         yield module.app
-    finally:
-        sys.modules = modules
 
 
 @pytest.fixture(name="client")

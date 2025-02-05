@@ -1,19 +1,18 @@
 from __future__ import annotations
 
+import contextlib
 import typing
 
-import httpx
 import pytest
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
 from starlette.responses import PlainTextResponse
+from starlette.routing import Mount
+from starlette.testclient import TestClient
 
 from asgi_caches.middleware import CacheControlMiddleware
-from tests.utils import mock_receive, mock_send
-
-if typing.TYPE_CHECKING:
-    from starlette.types import ASGIApp, Receive, Scope, Send
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("initial", "kwargs", "result"),
     [
@@ -56,26 +55,31 @@ if typing.TYPE_CHECKING:
         pytest.param(None, {"private": True}, NotImplementedError),
     ],
 )
-async def test_cache_control_middleware(
+def test_cache_control_middleware(
     initial: str | None,
     kwargs: dict,
     result: str | type[BaseException] | None,
 ) -> None:
-    app: ASGIApp = PlainTextResponse(
-        "Hello, world!",
-        headers={"Cache-Control": initial} if initial else {},
+    app = Starlette(
+        routes=[
+            Mount(
+                "/",
+                PlainTextResponse(
+                    "Hello, world!",
+                    headers={"Cache-Control": initial} if initial else {},
+                ),
+            )
+        ],
+        middleware=[Middleware(CacheControlMiddleware, **kwargs)],
     )
-    app = CacheControlMiddleware(app, **kwargs)
-    client = httpx.AsyncClient(
-        transport=httpx.ASGITransport(app), base_url="http://testserver"
-    )
+    client = TestClient(app)
 
-    async with client:
+    with client:
         if result is NotImplementedError:
             with pytest.raises(NotImplementedError):
-                await client.get("/")
+                client.get("/")
         else:
-            r = await client.get("/")
+            r = client.get("/")
             assert r.status_code == 200
             assert r.text == "Hello, world!"
             if not result:
@@ -84,10 +88,20 @@ async def test_cache_control_middleware(
                 assert r.headers["Cache-Control"] == result
 
 
-@pytest.mark.asyncio
-async def test_not_http() -> None:
-    async def app(scope: Scope, receive: Receive, send: Send) -> None:
-        assert scope["type"] == "lifespan"
+def test_not_http() -> None:
+    lifespan_state = None
 
-    app = CacheControlMiddleware(app)
-    await app({"type": "lifespan"}, mock_receive, mock_send)
+    @contextlib.asynccontextmanager
+    async def lifespan(_: Starlette) -> typing.AsyncIterator[None]:
+        nonlocal lifespan_state
+        lifespan_state = "started"
+        try:
+            yield
+        finally:
+            lifespan_state = "stopped"
+
+    app = Starlette(middleware=[Middleware(CacheControlMiddleware)], lifespan=lifespan)
+
+    with TestClient(app):
+        assert lifespan_state == "started"
+    assert lifespan_state == "stopped"
