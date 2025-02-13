@@ -1,0 +1,987 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Server-side HTTP caching for ASGI applications, inspired by Django's cache framework">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="rules/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>Getting Started - starlette-caches</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.a40c8224.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#user-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="starlette-caches" class="md-header__button md-logo" aria-label="starlette-caches" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            starlette-caches
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mattmess1221/starlette-caches" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mattmess1221/starlette-caches
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="starlette-caches" class="md-nav__button md-logo" aria-label="starlette-caches" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    starlette-caches
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mattmess1221/starlette-caches" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mattmess1221/starlette-caches
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enabling caching
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enabling caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-wide-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Application-wide caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-endpoint-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-endpoint caching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching fine-tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching fine-tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#time-to-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time to live
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache-Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache-Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-privacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache privacy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabling-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabling caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Invalidation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order-of-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      Order of middleware
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rules/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Caching Rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enabling-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enabling caching
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enabling caching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-wide-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Application-wide caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-endpoint-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-endpoint caching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-fine-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Caching fine-tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching fine-tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#time-to-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time to live
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache-Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache-Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-privacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache privacy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabling-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabling caching
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-invalidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cache Invalidation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order-of-middleware" class="md-nav__link">
+    <span class="md-ellipsis">
+      Order of middleware
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="user-guide">User Guide</h1>
+<h2 id="getting-started">Getting started</h2>
+<p><code>starlette-caches</code> uses <code>aiocache</code> to interact with cache backends. This means you'll first need to <a href="https://aiocache.aio-libs.org/en/latest/">setup a <code>Cache</code></a>.</p>
+<p>Here's an example setup with <a href="https://www.starlete.io">Starlette</a> and an in-memory cache with a default time to live of 2 minutes:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiocache</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.applications</span><span class="w"> </span><span class="kn">import</span> <span class="n">Starlette</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheMiddleware</span>
+
+<span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span><span class="n">ttl</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="c1"># 2 minutes</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">middleware</span><span class="o">=</span><span class="p">[</span><span class="n">Middleware</span><span class="p">(</span><span class="n">CacheMiddleware</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)])</span>
+</code></pre></div>
+<h2 id="enabling-caching">Enabling caching</h2>
+<p>There are two ways to enable HTTP caching on an application: on an entire application, or on a specific endpoint. Both rely on <code>CacheMiddleware</code>, an ASGI middleware.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You cannot use endpoint-level caching if application-level caching is enabled.</p>
+<p>As a rule of thumb, you should explicitly specify which endpoints should be cached as soon as you need anything more granular than caching all endpoints on the application.</p>
+</div>
+<h3 id="application-wide-caching">Application-wide caching</h3>
+<p>To cache all endpoints, wrap the application around <code>CacheMiddleware</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">CacheMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>If your ASGI web framework provides a specific way of adding middleware, you'll probably want to use it instead of wrapping the app directly.</p>
+</div>
+<p>This middleware applies the <code>Cache-Control</code> and <code>Expires</code> headers based on the cache <code>ttl</code> (see also <a href="#time-to-live">Time to live</a>). These headers tell the browser how and for how long it should cache responses.</p>
+<p>If you have multiple middleware, read <a href="#order-of-middleware">Order of middleware</a> to know at which point in the stack <code>CacheMiddleware</code> should be applied.</p>
+<h3 id="per-endpoint-caching">Per-endpoint caching</h3>
+<p>If your ASGI web framework supports a notion of endpoints (a.k.a. "routes"), you can specify the cache policy on a given endpoint using the <code>@cached</code> decorator. This works regardless of whether <code>CacheMiddleware</code> is present.</p>
+<p>Starlette example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached</span>
+
+<span class="nd">@cached</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserDetail</span><span class="p">(</span><span class="n">HTTPEndpoint</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+<p>Note that the decorated object should be an ASGI callable. This is why the code snippet above uses a Starlette <a href="https://www.starlette.io/endpoints/">endpoint</a> (a.k.a. class-based view) instead of a function-based view. (Starlette endpoints implement the ASGI interface, while function-based views don't.)</p>
+<p>Note that you can't apply <code>@cached</code> to methods of a class either. This is probably fine though, as you shouldn't need to specify which methods support caching: <code>starlette-caches</code> will only ever cache "safe" requests, i.e. GET and HEAD.</p>
+<h2 id="caching-fine-tuning">Caching fine-tuning</h2>
+<h3 id="time-to-live">Time to live</h3>
+<p>Time to live (TTL) refers to how long (in seconds) a response can stay in the cache before it expires.</p>
+<p>Components in <code>starlette-caches</code> will use the TTL set on the <code>Cache</code> instance by default.</p>
+<p>You can override the TTL on a per-view basis by setting the <code>max-age</code> cache-control directive (for details, see <a href="#cache-control">Cache control</a> below).</p>
+<p>Starlette example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_control</span>
+
+<span class="nd">@cache_control</span><span class="p">(</span><span class="n">max_age</span><span class="o">=</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>  <span class="c1"># Cache for one hour.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Constant</span><span class="p">(</span><span class="n">HTTPEndpoint</span><span class="p">):</span>
+    <span class="o">...</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>AIOCache does not define a default TTL. If you don't set one, the cache will keep the response indefinitely.</p>
+</div>
+<h3 id="cache-control">Cache-Control</h3>
+<p>If you'd like to add extra directives to the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control"><code>Cache-Control</code></a> header of responses returned by an endpoint, for example to fine-tune how clients should cache them, you can use the <code>@cache_control()</code> decorator.</p>
+<p>Using <code>@cache_control()</code> is often preferable to manually setting the <code>Cache-Control</code> header on the response, as it will <em>add</em> directives instead of replacing the existing ones.</p>
+<p>If <code>Cache-Control</code> is already set on the response, pre-existing directives may be overridden by those passed <code>@cache_control()</code>. For example, if the response contains <code>Cache-Control: no-transform, must-revalidate</code> and you use <code>@cache_control(must_revalidate=False)</code>, then the <code>must-revalidate</code> directive will not be included in the final header.</p>
+<p>In particular, this allows you to override the TTL using <code>@cache_control(max_age=...)</code>. Note, however, that the minimum of the existing <code>max-age</code> (if set) and the one passed to <code>@cache_control()</code> will be used.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting the <code>public</code> and <code>private</code> directives is not supported yet -- <a href="#cache-privacy">Cache privacy</a>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><code>@cache_control()</code> is independant of <code>CacheMiddleware</code> and <code>@cached</code>: applying it will <em>not</em> result in storing responses in the server-side cache.</p>
+</div>
+<p>Starlette example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_control</span>
+
+<span class="nd">@cache_control</span><span class="p">(</span>
+    <span class="c1"># Indicate that cache systems MUST refetch</span>
+    <span class="c1"># the response once it has expired.</span>
+    <span class="n">must_revalidate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="c1"># Indicate that cache systems MUST NOT</span>
+    <span class="c1"># transform the response (e.g. convert between image formats).</span>
+    <span class="n">no_transform</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Resource</span><span class="p">(</span><span class="n">HTTPEndpoint</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+<p>For a list of valid cache directives, see the <a href="https://www.iana.org/assignments/http-cache-directives/http-cache-directives.xhtml">HTTP Cache Directive Registry</a> (note that not all apply to responses). For more information on using these directives, see the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">MDN web docs on <code>Cache-Control</code></a>.</p>
+<h4 id="cache-privacy">Cache privacy</h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This section documents functionality that has not been implemented yet.</p>
+</div>
+<p>One particular use case for <code>@cache_control()</code> is cache privacy. There may be multiple intermediate caching systems between your server and your clients (e.g. a CDN, the user's ISP, etc.). If an endpoint returns sensitive user data (e.g. a bank account number), you probably want to tell the cache that this data is private, and should not be cached at all.</p>
+<p>You can achieve this by using the <code>private</code> cache-control directive:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_control</span>
+
+<span class="nd">@cache_control</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BankAccount</span><span class="p">(</span><span class="n">HTTPEndpoint</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="o">...</span>
+</code></pre></div>
+<p>Alternatively, you can explicitly mark a resource as public by passing <code>public=True</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>private</code> and <code>public</code> are exclusive (only one of them can be passed).</p>
+</div>
+<h3 id="disabling-caching">Disabling caching</h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This section documents functionality that has not been implemented yet.</p>
+</div>
+<p>To disable caching altogether on a given endpoint, you can use the <code>@never_cache</code> decorator.</p>
+<p>Starlette example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPEndpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">never_cache</span>
+
+<span class="nd">@never_cache</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DateTime</span><span class="p">(</span><span class="n">HTTPEndpoint</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">utcformat</span><span class="p">()})</span>
+</code></pre></div>
+<h3 id="cache-invalidation">Cache Invalidation</h3>
+<p>When you follow RESTful principles, you'll want to invalidate the cache when a resource is updated. This is particularly important for resources that are updated frequently, as clients may cache them for a long time.</p>
+<p>If you define an endpoint that supports both <code>GET</code> and non-<code>GET</code> methods (<code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>), the cache will automatically be invalidated when a non-<code>GET</code> request is made to the endpoint. No additional configuration is required.</p>
+<p>If you need to invalidate the cache in other cases, you can use the <a class="autorefs autorefs-internal" href="../reference/#starlette_caches.helpers.CacheHelper.invalidate_cache_for"><code>CacheHelper.invalidate_cache_for</code></a> method. It accepts a starlette <code>URL</code> or the name of a route as accepted by <a href="https://www.starlette.io/routing/#reverse-url-lookups"><code>url_for</code></a>. An optional named argument <code>headers</code> can be passed to specify the headers that should be used to vary the cache as specified by the cached <code>Vary</code> response header.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="fastapi" name="__tabbed_1" type="radio" /><input id="starlette" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="fastapi">FastAPI</label><label for="starlette">Starlette</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>FastAPI supports dependency injection, which makes it easy to get the <code>CacheHelper</code> instance in your endpoint:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">aiocache</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheHelper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheMiddleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">FastAPI</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">CacheMiddleware</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">Cache</span><span class="p">())</span>
+
+
+<span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/invalidate&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span>
+</span><span class="hll"><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">invalidate_cache</span><span class="p">(</span>
+</span><span class="hll">    <span class="n">cache_helper</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">CacheHelper</span><span class="p">,</span> <span class="n">Depends</span><span class="p">()],</span>
+</span><span class="hll"><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span class="hll">    <span class="k">await</span> <span class="n">cache_helper</span><span class="o">.</span><span class="n">invalidate_cache_for</span><span class="p">(</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">)</span>
+</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/endpoint&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_endpoint</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, World!&quot;</span><span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<p>Starlette does not support dependency injection, so you'll need to instantiate the <code>CacheHelper</code> manually from the <code>request</code> object:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiocache</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheHelper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette_caches.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheMiddleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.applications</span><span class="w"> </span><span class="kn">import</span> <span class="n">Starlette</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">Middleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.requests</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONResponse</span><span class="p">,</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Route</span>
+
+
+<span class="hll"><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">invalidate_cache</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+</span><span class="hll">    <span class="n">cache_helper</span> <span class="o">=</span> <span class="n">CacheHelper</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</span><span class="hll">    <span class="k">await</span> <span class="n">cache_helper</span><span class="o">.</span><span class="n">invalidate_cache_for</span><span class="p">(</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">)</span>
+</span><span class="hll">    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span>
+</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_endpoint</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, World!&quot;</span><span class="p">})</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
+<span class="hll">        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/invalidate&quot;</span><span class="p">,</span> <span class="n">invalidate_cache</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">]),</span>
+</span>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">my_endpoint</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="n">middleware</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Middleware</span><span class="p">(</span><span class="n">CacheMiddleware</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">Cache</span><span class="p">()),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<h2 id="order-of-middleware">Order of middleware</h2>
+<p>The cache middleware uses the <code>Vary</code> header present in responses to know by which request header it should vary the cache. For example, if a response contains <code>Vary: Accept-Encoding</code>, a request containing <code>Accept-Encoding: gzip</code> won't result in using the same cache entry than a request containing <code>Accept-Encoding: identity</code>.</p>
+<p>As a result of this mechanism, there are some rules relative to which point in the middleware stack cache middleware should be applied:</p>
+<ul>
+<li><code>CacheMiddleware</code> should be applied <em>after</em> middleware that modifies the <code>Vary</code> header. For example:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">starlette.middleware.gzip</span><span class="w"> </span><span class="kn">import</span> <span class="n">GZipMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">GZipMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>  <span class="c1"># Adds &#39;Accept-Encoding&#39;</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">CacheMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>Similarly, it should be applied <em>before</em> middleware that may add something to the varying headers of the request. For example, if you had a middleware that added authentication session cookies, and <code>Cookie</code> is present in the <code>Vary</code> header of responses, then you'd need to place <code>CacheMiddleware</code> <em>before</em> this middleware.</li>
+</ul>
+<h2 id="logging">Logging</h2>
+<p><code>starlette-caches</code> provides logs that contain detail about what is going on: cache hits, cache misses, cache key derivation, etc. These logs are particularly useful when investigating bugs or unexpected behavior.</p>
+<p>If using <a href="https://www.uvicorn.org">Uvicorn</a> or another logging-aware program, <code>DEBUG</code> and <code>TRACE</code> logs should be activated when serving with the corresponding log level.</p>
+<p>For example, Uvicorn should show <code>starlette-caches</code> debug logs when run with <code>--log-level=debug</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>uvicorn<span class="w"> </span>debug.app:app<span class="w"> </span>--log-level<span class="o">=</span>debug
+<span class="go">INFO:     Started server process [95022]</span>
+<span class="go">INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)</span>
+<span class="go">INFO:     Waiting for application startup.</span>
+<span class="go">INFO:     Application startup complete.</span>
+<span class="go">DEBUG:    cache_lookup MISS</span>
+<span class="go">DEBUG:    store_in_cache max_age=120</span>
+<span class="go">INFO:     127.0.0.1:59895 - &quot;GET / HTTP/1.1&quot; 200 OK</span>
+<span class="go">DEBUG:    cache_lookup HIT</span>
+<span class="go">INFO:     127.0.0.1:59897 - &quot;GET / HTTP/1.1&quot; 200 OK</span>
+</code></pre></div>
+<p>If you need to manually activate logs, you can set the <code>STARLETTE_CACHES_LOG_LEVEL</code> environment variable to one of the following values (case insensitive):</p>
+<ul>
+<li><code>debug</code>: general-purpose output on cache hits, cache misses, and storage of responses in the cache.</li>
+<li><code>trace</code>: very detailed output on all operations performed. This includes calls to the remote cache system, computation of cache keys, reasons why responses are not cached, etc.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.tabs.link"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>
